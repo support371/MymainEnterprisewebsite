@@ -1,6 +1,8 @@
 import type { Metadata, Viewport } from "next";
+import { Suspense } from "react";
 import "./globals.css";
-import Navbar from "@/components/layout/Navbar";
+import TopNav from "@/components/layout/TopNav";
+import BottomTabBar from "@/components/layout/BottomTabBar";
 import Footer from "@/components/layout/Footer";
 import LiveSupport from "@/components/layout/LiveSupport";
 import ExtensionErrorGuard from "@/components/layout/ExtensionErrorGuard";
@@ -30,12 +32,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="dark">
-      <body className="antialiased bg-slate-950 text-white min-h-screen">
+      <body className="antialiased bg-slate-950 text-white min-h-screen pb-16 lg:pb-0">
         <ExtensionErrorGuard />
-        <Navbar />
-        <main>{children}</main>
+        <Suspense fallback={null}><TopNav /></Suspense>
+        <main className="pt-16">{children}</main>
         <Footer />
         <LiveSupport />
+        <Suspense fallback={null}><BottomTabBar /></Suspense>
       </body>
     </html>
   );

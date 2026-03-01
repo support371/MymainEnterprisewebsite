@@ -1,7 +1,7 @@
 export type AppRoute = {
   path: string;
   label: string;
-  category: 'core' | 'platform' | 'admin' | 'legal';
+  category: 'core' | 'platform' | 'admin' | 'legal' | 'hub';
   description: string;
 };
 
@@ -60,12 +60,44 @@ export const appRoutes: AppRoute[] = [
   { path: '/legal/privacy-policy', label: 'Privacy Policy', category: 'legal', description: 'Legal privacy disclosures and data handling policies.' },
   { path: '/legal/terms-of-service', label: 'Terms of Service', category: 'legal', description: 'Platform terms and service boundaries.' },
   { path: '/legal/cookie-policy', label: 'Cookie Policy', category: 'legal', description: 'Cookie usage and tracking policy.' },
+
+  // ── HUB-AND-SPOKE PRIMARY SURFACES ────────────────────────────────────────
+  { path: '/home',              label: 'Home Surface',      category: 'core',     description: 'Canonical home domain surface — hub-and-spoke primary tab.' },
+  { path: '/intel',             label: 'Intel',             category: 'platform', description: 'Threat intelligence domain surface with KPI snapshot and module feed.' },
+  { path: '/assets',            label: 'Assets',            category: 'platform', description: 'Asset management domain surface — recovery, portfolio, and QFS.' },
+  { path: '/community',         label: 'Community',         category: 'platform', description: 'Community domain surface — membership, case studies, and news.' },
+
+  // ── HUB SUB-ROUTES ────────────────────────────────────────────────────────
+  { path: '/hub',               label: 'Hub',               category: 'hub',      description: 'Operations hub index — entry to all hub domain surfaces.' },
+  { path: '/hub/soc',           label: 'Hub: SOC',          category: 'hub',      description: 'Security Operations Center — threat monitoring and incident response.' },
+  { path: '/hub/research',      label: 'Hub: Research',     category: 'hub',      description: 'Research hub — architecture specs, documentation, and roadmap.' },
+  { path: '/hub/compliance',    label: 'Hub: Compliance',   category: 'hub',      description: 'Compliance hub — federal controls and audit readiness lifecycle.' },
+  { path: '/hub/portfolio',     label: 'Hub: Portfolio',    category: 'hub',      description: 'Portfolio hub — asset dashboard and QFS integration.' },
+  { path: '/hub/real-estate',   label: 'Hub: Real Estate',  category: 'hub',      description: 'Real estate hub — Alliance Trust Realty and Cyber Sentinel framework.' },
 ];
 
 export const legacyRedirects: LegacyRedirect[] = [
-  { source: '/home', destination: '/', permanent: true, reason: 'Legacy alias consolidated into root homepage.' },
+  // ── WELL-ESTABLISHED PERMANENT REDIRECTS ──────────────────────────────────
   { source: '/contact', destination: '/contact-us', permanent: true, reason: 'Legacy renamed URL redirected to contact-us.' },
   { source: '/privacy', destination: '/legal/privacy-policy', permanent: true, reason: 'Legacy privacy URL redirected to legal namespace.' },
   { source: '/terms', destination: '/legal/terms-of-service', permanent: true, reason: 'Legacy terms URL redirected to legal namespace.' },
-  { source: '/architecture', destination: '/specs', permanent: true, reason: 'Architecture page now managed by specs route.' },
+
+  // ── HUB-AND-SPOKE SURFACE REDIRECTS (soft / 307) ──────────────────────────
+  // /home is now a real page — redirect removed (old /home → / entry deleted)
+  // Old service routes → hub surfaces
+  { source: '/intelligence', destination: '/intel', permanent: false, reason: 'Intelligence route feeds new /intel domain surface.' },
+  { source: '/services/threat-monitoring', destination: '/hub/soc', permanent: false, reason: 'Threat monitoring is surfaced under Hub SOC.' },
+  { source: '/services/incident-response', destination: '/hub/soc', permanent: false, reason: 'Incident response is surfaced under Hub SOC.' },
+  { source: '/services/compliance-management', destination: '/hub/compliance', permanent: false, reason: 'Compliance management is surfaced under Hub Compliance.' },
+  { source: '/services/federal-compliance', destination: '/hub/compliance', permanent: false, reason: 'Federal compliance is surfaced under Hub Compliance.' },
+  { source: '/services/asset-recovery', destination: '/assets', permanent: false, reason: 'Asset recovery is surfaced under /assets domain.' },
+  { source: '/portfolio', destination: '/hub/portfolio', permanent: false, reason: 'Portfolio is surfaced under Hub Portfolio.' },
+  { source: '/qfs', destination: '/hub/portfolio', permanent: false, reason: 'QFS is surfaced under Hub Portfolio.' },
+  { source: '/bridge/alliance-trust', destination: '/hub/real-estate', permanent: false, reason: 'Alliance Trust surfaced under Hub Real Estate.' },
+  { source: '/cyber-sentinel-trust', destination: '/hub/real-estate', permanent: false, reason: 'Cyber Sentinel surfaced under Hub Real Estate.' },
+  { source: '/specs', destination: '/hub/research', permanent: false, reason: 'Specs surfaced under Hub Research.' },
+  { source: '/architecture', destination: '/hub/research', permanent: false, reason: 'Architecture surfaced under Hub Research (replaces old /architecture → /specs redirect).' },
+  { source: '/membership', destination: '/community', permanent: false, reason: 'Membership surfaced under /community domain.' },
+  { source: '/case-studies', destination: '/community', permanent: false, reason: 'Case Studies surfaced under /community domain.' },
+  { source: '/news', destination: '/community', permanent: false, reason: 'News surfaced under /community domain.' },
 ];

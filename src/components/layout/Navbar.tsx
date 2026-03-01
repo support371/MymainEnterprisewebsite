@@ -1,3 +1,9 @@
+/**
+ * @deprecated Replaced by TopNav (desktop) and BottomTabBar (mobile) as part of
+ * the hub-and-spoke architecture redesign. This file is no longer imported by the
+ * root layout. Safe to remove after the new nav is validated in production.
+ * See: src/components/layout/TopNav.tsx and src/components/layout/BottomTabBar.tsx
+ */
 "use client";
 
 import { useEffect, useState } from 'react';
