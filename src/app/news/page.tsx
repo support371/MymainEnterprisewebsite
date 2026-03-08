@@ -313,6 +313,8 @@ const NewsCard = ({ article, onClick }: { article: Article, onClick: (a: Article
   </div>
 );
 
+export const dynamic = 'force-dynamic';
+
 export default function GemNewsApp() {
   const [activeCategory, setActiveCategory] = useState('all');
   const [selectedArticle, setSelectedArticle] = useState<Article | null>(null);

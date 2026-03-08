@@ -4,6 +4,8 @@ const teams = [
   { id: 'T-03', name: 'Compliance & Audit', lead: 'K. Ofori', members: 5, roleProfile: 'compliance_admin' },
 ];
 
+export const dynamic = 'force-dynamic';
+
 export default function TeamsAdminPage() {
   return (
     <section className="bg-slate-900 border border-slate-800 rounded-xl p-6">

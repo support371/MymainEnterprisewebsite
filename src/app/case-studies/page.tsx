@@ -1,6 +1,8 @@
 import { ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 
+export const dynamic = 'force-dynamic';
+
 export default function CaseStudiesPage() {
   const cases = [
     { industry: 'Finance', title: 'Zero Breaches Achieved', metric: '94%', label: 'Incident Reduction', size: '10K+ employees' },

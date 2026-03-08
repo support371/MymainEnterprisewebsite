@@ -1,5 +1,7 @@
 import { revalidatePath } from 'next/cache';
 import { listContactMessages, updateContactMessage } from '@/lib/contactMessages';
+export const dynamic = 'force-dynamic';
+
 
 type MessageStatus = 'open' | 'triaged' | 'closed';
 

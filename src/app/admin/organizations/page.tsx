@@ -3,6 +3,8 @@ const organizations = [
   { id: 'ORG-233', name: 'Northwind Health', domain: 'northwind.example', billingEnabled: false, tier: 'Pilot' },
 ];
 
+export const dynamic = 'force-dynamic';
+
 export default function OrganizationsAdminPage() {
   return (
     <section className="bg-slate-900 border border-slate-800 rounded-xl p-6">

@@ -1,6 +1,8 @@
 import { Linkedin, Mail, Shield, Users } from 'lucide-react';
 import Link from 'next/link';
 
+export const dynamic = 'force-dynamic';
+
 export default function TeamPage() {
   const leadership = [
     { name: 'Michael Chen', title: 'CEO & Founder', initials: 'MC', bio: 'Former CISO at Fortune 100 with 20+ years experience' },

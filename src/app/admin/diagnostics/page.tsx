@@ -1,5 +1,7 @@
 import { promises as fs } from 'node:fs';
 import { listAdminUsers } from '@/lib/adminUsers';
+export const dynamic = 'force-dynamic';
+
 
 async function checkStorage() {
   try {

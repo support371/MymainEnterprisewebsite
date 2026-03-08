@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 import { BookOpen, FileText, Layers, Map } from 'lucide-react';
 import PlatformModuleCard from '@/components/ui/PlatformModuleCard';
 
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
   title: 'Research | Hub | GEM Cyber',
   description: 'Platform architecture documentation and technical specifications.',

@@ -26,6 +26,8 @@ const dataModelStubs = [
   'notification_outbox',
 ];
 
+export const dynamic = 'force-dynamic';
+
 export default function CampaignsPage() {
   return (
     <div className="min-h-screen pt-24 pb-16 bg-slate-950 text-white">

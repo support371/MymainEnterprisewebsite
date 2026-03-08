@@ -1,6 +1,8 @@
 import { Shield, CheckCircle } from 'lucide-react';
 import Link from 'next/link';
 
+export const dynamic = 'force-dynamic';
+
 export default function ThreatMonitoringPage() {
   return (
     <div className="min-h-screen pt-20">

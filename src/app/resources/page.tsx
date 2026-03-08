@@ -1,6 +1,8 @@
 import { Search, FileText, Clock, Download, Mail } from 'lucide-react';
 
 
+export const dynamic = 'force-dynamic';
+
 export default function ResourcesPage() {
   const resources = [
     { title: 'SOC 2 Compliance Guide', type: 'Whitepaper', time: '45 min', views: '12.5K' },

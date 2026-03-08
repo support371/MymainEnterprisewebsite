@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 import { BarChart3, Shield } from 'lucide-react';
 import PlatformModuleCard from '@/components/ui/PlatformModuleCard';
 
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
   title: 'Portfolio | Hub | GEM Cyber',
   description: 'Asset portfolio dashboard with security status and QFS integration.',

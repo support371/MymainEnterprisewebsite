@@ -1,16 +1,18 @@
 import type { Metadata } from 'next';
-import { BarChart3, Building2, Search, Shield } from 'lucide-react';
+import { BarChart3, ClipboardList, Search, Shield } from 'lucide-react';
 import PlatformModuleCard from '@/components/ui/PlatformModuleCard';
+
+export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
   title: 'Assets',
-  description: 'Enterprise asset recovery, portfolio security, and physical asset protection.',
+  description: 'Enterprise asset recovery, portfolio security, governance, and physical asset protection.',
 };
 
 const kpis = [
   { label: 'Value Recovered',  value: '$12M+' },
-  { label: 'Asset Classes',    value: '4' },
-  { label: 'Countries',        value: '24+' },
+  { label: 'Asset Classes',    value: '7' },
+  { label: 'Countries Active', value: '24+' },
   { label: 'Audit Success',    value: '100%' },
 ];
 
@@ -18,31 +20,31 @@ const modules = [
   {
     title: 'Asset Recovery Operations',
     description: 'Forensic-level tracking and recovery of high-value corporate assets across jurisdictions.',
-    outcomes: ['International liaison', 'Legal coordination', 'Chain of custody docs'],
+    outcomes: ['International liaison', 'Legal coordination', 'Chain of custody docs', '94% recovery rate'],
     ctaLabel: 'Explore Recovery',
-    href: '/services/asset-recovery',
+    href: '/assets/recovery',
     icon: Search,
+  },
+  {
+    title: 'Asset Governance',
+    description: 'Classification, access control, and audit readiness for all asset classes.',
+    outcomes: ['Asset classification policy', 'RBAC and custody controls', 'SOC 2 / NIST aligned', 'Continuous audit readiness'],
+    ctaLabel: 'View Governance',
+    href: '/assets/governance',
+    icon: ClipboardList,
   },
   {
     title: 'Portfolio Dashboard',
     description: 'Security status overview for digital and physical asset portfolios.',
-    outcomes: ['245 digital assets', '8 properties', '99.97% uptime'],
+    outcomes: ['245 digital assets', '8 properties', '99.97% uptime', 'Risk-rated coverage'],
     ctaLabel: 'View Portfolio',
-    href: '/portfolio',
+    href: '/hub/portfolio',
     icon: BarChart3,
-  },
-  {
-    title: 'Physical Asset Protection',
-    description: 'High-end physical security protocols for corporate real estate holdings.',
-    outcomes: ['Property protection', 'Portfolio audits', 'Valuation monitoring'],
-    ctaLabel: 'Alliance Trust',
-    href: '/bridge/alliance-trust',
-    icon: Building2,
   },
   {
     title: 'Quantum-Secure Finance',
     description: 'Military-level security for high-value transaction infrastructure.',
-    outcomes: ['100K+ TPS', '<50ms latency', '99.99% uptime SLA'],
+    outcomes: ['100K+ TPS', '<50ms latency', '99.99% uptime SLA', 'Cryptographic audit trail'],
     ctaLabel: 'QFS Details',
     href: '/qfs',
     icon: Shield,
@@ -76,7 +78,8 @@ export default function AssetsPage() {
       <section className="py-10 container mx-auto px-4">
         <h1 className="text-3xl font-bold">Asset Management</h1>
         <p className="mt-2 max-w-2xl text-slate-300">
-          Enterprise asset recovery and portfolio protection — physical and digital assets, unified under one security posture.
+          Enterprise asset recovery, governance, and portfolio protection — digital, financial,
+          and physical assets under one unified security posture.
         </p>
       </section>
 

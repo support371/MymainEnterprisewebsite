@@ -3,6 +3,8 @@
 import { useState } from 'react';
 import { CheckCircle } from 'lucide-react';
 
+export const dynamic = 'force-dynamic';
+
 export default function PortfolioPage() {
   const [activeTab, setActiveTab] = useState('overview');
 

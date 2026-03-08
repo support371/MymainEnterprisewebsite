@@ -9,11 +9,11 @@ import ExtensionErrorGuard from "@/components/layout/ExtensionErrorGuard";
 
 export const metadata: Metadata = {
   title: {
-    default: "GEM Cyber | Enterprise Security & Physical Asset Protection",
+    default: "GEM Cyber | Enterprise Security Command Center",
     template: "%s | GEM Cyber"
   },
-  description: "Unified Operations Center for global threat detection, federal compliance, and high-value physical asset protection. Security for the modern Hybrid Enterprise.",
-  keywords: ["cybersecurity", "asset recovery", "federal compliance", "threat monitoring", "GEM Cyber", "Hybrid Enterprise"],
+  description: "Unified enterprise cybersecurity platform — managed detection, compliance operations, asset protection, and response orchestration for the modern hybrid enterprise.",
+  keywords: ["cybersecurity", "asset recovery", "federal compliance", "threat monitoring", "GEM Cyber", "enterprise security"],
   authors: [{ name: "GEM Cyber" }],
   icons: {
     icon: "/favicon.ico",

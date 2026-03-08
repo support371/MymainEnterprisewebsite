@@ -1,4 +1,6 @@
 import { Layers3, ShieldCheck, Send, Newspaper, Database, Cog } from 'lucide-react';
+export const dynamic = 'force-dynamic';
+
 
 const sections = [
   {

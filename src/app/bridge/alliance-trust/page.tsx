@@ -1,5 +1,7 @@
 import { Building2, Shield, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
+export const dynamic = 'force-dynamic';
+
 
 export default function AllianceTrustPage() {
   return (

@@ -1,6 +1,8 @@
 import Link from 'next/link';
 import { Activity, Compass, Cpu, LayoutTemplate, Server, ShieldCheck } from 'lucide-react';
 import { appRoutes, legacyRedirects } from '@/lib/siteRoutes';
+export const dynamic = 'force-dynamic';
+
 
 export const metadata = {
   title: 'Enterprise Live Preview | GEM Cyber',

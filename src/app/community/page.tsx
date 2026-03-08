@@ -2,9 +2,11 @@ import type { Metadata } from 'next';
 import { BookOpenCheck, Handshake, Newspaper, Users } from 'lucide-react';
 import PlatformModuleCard from '@/components/ui/PlatformModuleCard';
 
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
   title: 'Community',
-  description: 'Membership programs, case studies, and industry news for GEM CYBER clients.',
+  description: 'Membership programs, leadership, case studies, and industry news for GEM CYBER clients.',
 };
 
 const kpis = [
@@ -17,11 +19,19 @@ const kpis = [
 const modules = [
   {
     title: 'Membership Programs',
-    description: 'Flexible membership tiers aligned to your risk profile and support depth.',
+    description: 'Flexible membership tiers aligned to your risk profile and security support depth.',
     outcomes: ['Operational', 'Advisory', 'Compliance', 'Partner Enablement'],
     ctaLabel: 'View Membership',
-    href: '/membership',
+    href: '/community/membership',
     icon: Users,
+  },
+  {
+    title: 'Leadership Team',
+    description: 'Meet the GEM CYBER executive and advisory team driving security outcomes.',
+    outcomes: ['Security operations leadership', 'Compliance expertise', 'Advisory board', 'Client success'],
+    ctaLabel: 'Meet the Team',
+    href: '/community/leadership',
+    icon: Handshake,
   },
   {
     title: 'Case Studies',
@@ -38,14 +48,6 @@ const modules = [
     ctaLabel: 'Browse News',
     href: '/news',
     icon: Newspaper,
-  },
-  {
-    title: 'Partner Network',
-    description: 'Extend security outcomes across your critical vendor and alliance network.',
-    outcomes: ['Vendor risk baseline', 'Shared controls', 'Joint escalation'],
-    ctaLabel: 'Learn More',
-    href: '/contact-us',
-    icon: Handshake,
   },
 ];
 
@@ -76,7 +78,8 @@ export default function CommunityPage() {
       <section className="py-10 container mx-auto px-4">
         <h1 className="text-3xl font-bold">Community</h1>
         <p className="mt-2 max-w-2xl text-slate-300">
-          Membership programs, client success stories, and threat landscape news — all in one place.
+          Membership programs, client success stories, leadership team, and threat landscape news —
+          all in one place.
         </p>
       </section>
 

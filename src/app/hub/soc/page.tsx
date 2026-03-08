@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 import { AlertTriangle, Shield } from 'lucide-react';
 import PlatformModuleCard from '@/components/ui/PlatformModuleCard';
 
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
   title: 'SOC | Hub | GEM Cyber',
   description: 'Security Operations Center — threat monitoring and incident response.',

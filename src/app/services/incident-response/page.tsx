@@ -1,6 +1,8 @@
 import { AlertTriangle, CheckCircle, Clock } from 'lucide-react';
 import Link from 'next/link';
 
+export const dynamic = 'force-dynamic';
+
 export default function IncidentResponsePage() {
   return (
     <div className="min-h-screen pt-20">

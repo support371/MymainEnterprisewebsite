@@ -6,17 +6,20 @@ import { usePathname } from 'next/navigation';
 const HUB_SUBNAV = [
   { label: 'Overview',    href: '/hub' },
   { label: 'SOC',         href: '/hub/soc' },
-  { label: 'Research',    href: '/hub/research' },
+  { label: 'Assessments', href: '/hub/assessments' },
   { label: 'Compliance',  href: '/hub/compliance' },
+  { label: 'Research',    href: '/hub/research' },
   { label: 'Portfolio',   href: '/hub/portfolio' },
-  { label: 'Real Estate', href: '/hub/real-estate' },
 ];
 
 export default function HubSubNav() {
   const pathname = usePathname();
 
   const items = HUB_SUBNAV.map((item) => {
-    const isActive = item.href === '/hub' ? pathname === '/hub' : pathname === item.href;
+    const isActive =
+      item.href === '/hub'
+        ? pathname === '/hub'
+        : pathname === item.href || pathname.startsWith(item.href + '/');
     return { ...item, isActive };
   });
 

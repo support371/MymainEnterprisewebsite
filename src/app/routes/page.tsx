@@ -1,5 +1,7 @@
 import Link from 'next/link';
 import { appRoutes, legacyRedirects } from '@/lib/siteRoutes';
+export const dynamic = 'force-dynamic';
+
 
 export const metadata = {
   title: 'Route Directory | GEM Cyber',

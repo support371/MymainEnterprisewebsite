@@ -1,10 +1,12 @@
 import type { Metadata } from 'next';
-import { BarChart3, BookOpenCheck, Building2, FileCheck2, ShieldCheck } from 'lucide-react';
+import { BarChart3, BookOpenCheck, ClipboardList, FileCheck2, ShieldCheck } from 'lucide-react';
 import PlatformModuleCard from '@/components/ui/PlatformModuleCard';
+
+export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
   title: 'Hub | GEM Cyber',
-  description: 'GEM CYBER operations hub — SOC, research, compliance, portfolio, and real estate domains.',
+  description: 'GEM CYBER operations hub — SOC, assessments, compliance, research, and portfolio domains.',
 };
 
 const hubModules = [
@@ -17,6 +19,22 @@ const hubModules = [
     icon: ShieldCheck,
   },
   {
+    title: 'Security Assessments',
+    description: 'Risk baseline, compliance gap analysis, and architecture review programs.',
+    outcomes: ['Risk baseline report', 'Compliance gap analysis', 'Architecture review', 'Remediation roadmap'],
+    ctaLabel: 'View Assessments',
+    href: '/hub/assessments',
+    icon: ClipboardList,
+  },
+  {
+    title: 'Compliance Operations',
+    description: 'Federal controls, NIST alignment, and audit readiness lifecycle.',
+    outcomes: ['CMMC 2.0', 'SOC 2', 'GDPR / CCPA', 'FedRAMP'],
+    ctaLabel: 'View Compliance',
+    href: '/hub/compliance',
+    icon: FileCheck2,
+  },
+  {
     title: 'Research & Architecture',
     description: 'Technical specs, architecture documentation, and platform roadmap.',
     outcomes: ['Architecture diagrams', 'Technical specs', 'Platform roadmap'],
@@ -25,28 +43,12 @@ const hubModules = [
     icon: BookOpenCheck,
   },
   {
-    title: 'Compliance Operations',
-    description: 'Federal controls, NIST alignment, and audit readiness lifecycle.',
-    outcomes: ['CMMC 2.0', 'SOC 2', 'GDPR / CCPA'],
-    ctaLabel: 'View Compliance',
-    href: '/hub/compliance',
-    icon: FileCheck2,
-  },
-  {
     title: 'Portfolio Management',
-    description: 'Asset portfolio dashboard with security status and QFS integration.',
+    description: 'Asset portfolio dashboard with security status and coverage reporting.',
     outcomes: ['$52.4M assets', '245 digital', '8 properties'],
     ctaLabel: 'Open Portfolio',
     href: '/hub/portfolio',
     icon: BarChart3,
-  },
-  {
-    title: 'Real Estate & Trust',
-    description: 'Alliance Trust Realty and Cyber Sentinel zero-trust framework.',
-    outcomes: ['Physical protection', 'Zero-trust architecture', 'Portfolio audits'],
-    ctaLabel: 'View Real Estate',
-    href: '/hub/real-estate',
-    icon: Building2,
   },
 ];
 
@@ -54,7 +56,7 @@ export default function HubPage() {
   return (
     <div className="min-h-screen bg-slate-950 text-white">
 
-      {/* KPI / domain overview strip */}
+      {/* Domain overview strip */}
       <section className="border-b border-slate-800/70 bg-slate-900/30 py-6">
         <div className="container mx-auto px-4">
           <p className="text-xs uppercase tracking-[0.14em] text-cyan-300 mb-3">Hub Overview</p>
@@ -79,7 +81,7 @@ export default function HubPage() {
       <section className="py-10 container mx-auto px-4">
         <h1 className="text-3xl font-bold">Operations Hub</h1>
         <p className="mt-2 max-w-2xl text-slate-300">
-          Select a domain surface to explore its capabilities and resources.
+          Select a domain surface to explore capabilities, operational resources, and platform controls.
         </p>
       </section>
 

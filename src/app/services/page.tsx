@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 import { Eye, Lock, Shield, Zap } from 'lucide-react';
 import PlatformModuleCard from '@/components/ui/PlatformModuleCard';
 
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
   title: 'Services',
   description: 'Enterprise security service modules for monitoring, response, and compliance operations.',

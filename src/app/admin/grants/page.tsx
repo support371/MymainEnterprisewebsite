@@ -5,6 +5,8 @@ const grants = [
   { role: 'Compliance Lead', permission: 'audit.export', scope: 'org:{id}' },
 ];
 
+export const dynamic = 'force-dynamic';
+
 export default function GrantsAdminPage() {
   return (
     <section className="bg-slate-900 border border-slate-800 rounded-xl p-6">

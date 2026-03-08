@@ -1,6 +1,8 @@
 import { redirect } from 'next/navigation';
 import { getCurrentAdminSession } from '@/lib/adminAuth';
 import { listAdminUsers } from '@/lib/adminUsers';
+export const dynamic = 'force-dynamic';
+
 
 export default async function AdminUsersPage() {
   const session = await getCurrentAdminSession();

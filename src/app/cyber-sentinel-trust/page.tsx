@@ -1,4 +1,6 @@
 import { Users, Eye, Lock, Network, FileText, Shield } from 'lucide-react';
+export const dynamic = 'force-dynamic';
+
 
 export default function SentinelPage() {
   return (

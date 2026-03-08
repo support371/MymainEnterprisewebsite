@@ -3,6 +3,8 @@
 import { useState } from 'react';
 import { Mail, Phone, Calendar, CheckCircle, AlertCircle } from 'lucide-react';
 
+export const dynamic = 'force-dynamic';
+
 export default function ContactPage() {
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);

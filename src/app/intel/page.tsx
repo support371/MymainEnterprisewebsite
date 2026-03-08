@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 import { Radar, ShieldAlert, Siren, Workflow } from 'lucide-react';
 import PlatformModuleCard from '@/components/ui/PlatformModuleCard';
 
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
   title: 'Intel',
   description: 'Threat and regulatory intelligence command center for GEM CYBER.',

@@ -1,6 +1,8 @@
 import { Shield, CheckCircle, Lock, Award } from 'lucide-react';
 import Link from 'next/link';
 
+export const dynamic = 'force-dynamic';
+
 export default function CompliancePage() {
   return (
     <div className="min-h-screen pt-20">

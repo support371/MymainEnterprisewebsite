@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 import { Award, Landmark } from 'lucide-react';
 import PlatformModuleCard from '@/components/ui/PlatformModuleCard';
 
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
   title: 'Compliance | Hub | GEM Cyber',
   description: 'Federal controls, NIST alignment, and audit readiness lifecycle.',
