@@ -1,0 +1,38 @@
+name: Set Vercel Production Branch
+
+on:
+  workflow_dispatch:
+    inputs:
+      vercel_project_id:
+        description: 'Vercel Project ID (found in Vercel → Project Settings → General)'
+        required: true
+        type: string
+      production_branch:
+        description: 'Branch to set as production'
+        required: true
+        default: 'claude/enterprise-architecture-redesign-W70hk'
+        type: string
+
+jobs:
+  set-production-branch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Update Vercel production branch via API
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: |
+          HTTP_STATUS=$(curl -s -o /tmp/vercel_response.json -w "%{http_code}" \
+            -X PATCH "https://api.vercel.com/v9/projects/${{ inputs.vercel_project_id }}" \
+            -H "Authorization: Bearer $VERCEL_TOKEN" \
+            -H "Content-Type: application/json" \
+            -d "{\"productionBranch\": \"${{ inputs.production_branch }}\"}")
+
+          echo "HTTP Status: $HTTP_STATUS"
+          cat /tmp/vercel_response.json | python3 -m json.tool || cat /tmp/vercel_response.json
+
+          if [ "$HTTP_STATUS" -ne 200 ]; then
+            echo "ERROR: Vercel API returned $HTTP_STATUS"
+            exit 1
+          fi
+
+          echo "SUCCESS: Production branch set to '${{ inputs.production_branch }}'"
