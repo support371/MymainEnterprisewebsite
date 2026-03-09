@@ -1,0 +1,65 @@
+@import "tailwindcss";
+
+:root {
+  --background: #020617;
+  --foreground: #ffffff;
+  --card: rgba(15, 23, 42, 0.75);
+  --card-foreground: #ffffff;
+  --primary: #00d4ff;
+  --primary-foreground: #02121d;
+  --secondary: #0f172a;
+  --secondary-foreground: #ffffff;
+  --muted: #16233b;
+  --muted-foreground: #9db3cc;
+  --accent: #00d4ff;
+  --accent-foreground: #00111f;
+  --destructive: #ff4757;
+  --destructive-foreground: #ffffff;
+  --border: #1e2b45;
+  --input: #16233b;
+  --ring: #00d4ff;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --font-sans: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-mono: "SFMono-Regular", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
+body {
+  background: radial-gradient(circle at 20% 10%, rgba(0, 212, 255, 0.12), transparent 35%),
+    radial-gradient(circle at 85% 20%, rgba(59, 130, 246, 0.09), transparent 35%),
+    linear-gradient(180deg, #030712 0%, #020617 100%);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+}
+
+.glow-cyan {
+  box-shadow: 0 0 0 1px rgba(0, 212, 255, 0.22), 0 0 24px rgba(0, 212, 255, 0.2);
+}
+
+.monitoring-dot {
+  animation: pulse-status 1.8s infinite;
+}
+
+@keyframes pulse-status {
+  0%,
+  100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.2); opacity: 0.65; }
+}
