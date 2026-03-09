@@ -82,7 +82,7 @@ export default function LeadershipPage() {
             <p className="text-xs uppercase tracking-[0.14em] text-cyan-300 mb-2">Leadership Team</p>
             <h1 className="text-3xl font-bold sm:text-4xl">Security leaders. Operator mindset.</h1>
             <p className="mt-3 text-slate-300 leading-relaxed">
-              GEM CYBER's leadership team combines deep cybersecurity operations expertise with
+              GEM CYBER&apos;s leadership team combines deep cybersecurity operations expertise with
               enterprise platform experience — focused on measurable security outcomes for every client.
             </p>
           </div>

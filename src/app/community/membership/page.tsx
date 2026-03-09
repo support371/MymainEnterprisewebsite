@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { ArrowRight, CheckCircle2, Shield, Users, Zap, Crown } from 'lucide-react';
+import { ArrowRight, CheckCircle2, Shield, Zap, Crown } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
 
@@ -91,7 +91,7 @@ export default function MembershipPage() {
             <p className="text-xs uppercase tracking-[0.14em] text-cyan-300 mb-2">Membership Programs</p>
             <h1 className="text-3xl font-bold sm:text-4xl">Security coverage that scales with you</h1>
             <p className="mt-3 text-slate-300 leading-relaxed">
-              Flexible membership tiers designed to match your organization's risk profile, compliance requirements,
+              Flexible membership tiers designed to match your organization&apos;s risk profile, compliance requirements,
               and security operations maturity.
             </p>
           </div>

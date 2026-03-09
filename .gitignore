@@ -36,9 +36,14 @@ yarn-error.log*
 .env.*.local
 .env.production
 .env*
+!.env.example
 
 # vercel
 .vercel
+
+# runtime data (contains password hashes and PII — never commit)
+/data/admin-users.json
+/data/contact-messages.json
 
 # typescript
 *.tsbuildinfo

@@ -13,7 +13,7 @@ export const metadata = {
 const backendEndpoints = [
   { method: 'GET', path: '/api/routes', description: 'Route + redirect registry payload for frontend/admin tooling.' },
   { method: 'GET', path: '/api/health', description: 'Deployment health check endpoint for uptime and smoke tests.' },
-  { method: 'GET', path: '/api/contact', description: 'Contact message intake endpoint.' },
+  { method: 'POST', path: '/api/contact', description: 'Contact form submission intake endpoint.' },
   { method: 'POST', path: '/api/newsletter', description: 'Newsletter subscription endpoint.' },
   { method: 'POST', path: '/api/admin/login', description: 'Admin session authentication endpoint.' },
   { method: 'POST', path: '/api/admin/logout', description: 'Admin session termination and cookie clearing.' },
