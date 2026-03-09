@@ -12,7 +12,11 @@ export const appEnv = {
 
 /** Returns true when DATABASE_URL is set — use for feature-gating DB-backed paths. */
 export function isDatabaseConfigured(): boolean {
-  return Boolean(process.env.DATABASE_URL);
+  return Boolean(
+    process.env.DATABASE_URL ||
+    process.env.POSTGRES_URL_NON_POOLING ||
+    process.env.POSTGRES_URL
+  );
 }
 
 /**
