@@ -9,7 +9,10 @@ let _sql: ReturnType<typeof postgres> | null = null;
 export function getDb(): ReturnType<typeof postgres> {
   if (_sql) return _sql;
 
-  const url = process.env.DATABASE_URL;
+  // Accept DATABASE_URL or the Vercel Postgres / Supabase integration env vars as fallback.
+  const url = process.env.DATABASE_URL
+    || process.env.POSTGRES_URL_NON_POOLING
+    || process.env.POSTGRES_URL;
   if (!url) throw new DbNotConfiguredError();
 
   _sql = postgres(url, {
