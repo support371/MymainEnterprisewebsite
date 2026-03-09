@@ -1,5 +1,4 @@
-import { promises as fs } from 'node:fs';
-import path from 'node:path';
+import { getDb } from './db/index';
 
 export type MessageStatus = 'open' | 'triaged' | 'closed';
 
@@ -19,116 +18,145 @@ export interface ContactMessage {
   tags: string[];
 }
 
-interface ListFilters {
+// ── DB row mapping ────────────────────────────────────────────────────────────
+
+type DbRow = {
+  id: string;
+  created_at: Date;
+  source_page: string;
+  first_name: string;
+  last_name: string;
+  email: string;
+  phone: string;
+  service_interest: string;
+  message_body: string;
+  status: MessageStatus;
+  assigned_to_user_id: string | null;
+  org_id: string | null;
+  tags: string[];
+};
+
+function rowToMessage(row: DbRow): ContactMessage {
+  return {
+    id: row.id,
+    createdAt: row.created_at instanceof Date ? row.created_at.toISOString() : String(row.created_at),
+    sourcePage: row.source_page,
+    firstName: row.first_name,
+    lastName: row.last_name,
+    email: row.email,
+    phone: row.phone,
+    serviceInterest: row.service_interest,
+    messageBody: row.message_body,
+    status: row.status,
+    assignedToUserId: row.assigned_to_user_id,
+    orgId: row.org_id,
+    tags: row.tags ?? [],
+  };
+}
+
+// ── Public API ────────────────────────────────────────────────────────────────
+
+export interface ListFilters {
   q?: string;
   status?: MessageStatus;
   assignedToUserId?: string;
 }
 
-const dataPath = path.join(process.cwd(), 'data', 'contact-messages.json');
-
-async function ensureStore(): Promise<void> {
-  await fs.mkdir(path.dirname(dataPath), { recursive: true });
-
-  try {
-    await fs.access(dataPath);
-  } catch {
-    await fs.writeFile(dataPath, '[]', 'utf8');
-  }
-}
-
-async function readMessages(): Promise<ContactMessage[]> {
-  await ensureStore();
-  const raw = await fs.readFile(dataPath, 'utf8');
-
-  try {
-    const parsed = JSON.parse(raw) as ContactMessage[];
-    return Array.isArray(parsed) ? parsed : [];
-  } catch {
-    return [];
-  }
-}
-
-async function writeMessages(messages: ContactMessage[]): Promise<void> {
-  await fs.writeFile(dataPath, JSON.stringify(messages, null, 2), 'utf8');
-}
-
 export async function createContactMessage(
   input: Omit<ContactMessage, 'id' | 'createdAt' | 'status' | 'assignedToUserId' | 'orgId' | 'tags'>,
 ): Promise<ContactMessage> {
-  const messages = await readMessages();
+  const sql = getDb();
+  const id = crypto.randomUUID();
 
-  const record: ContactMessage = {
-    id: crypto.randomUUID(),
-    createdAt: new Date().toISOString(),
-    status: 'open',
-    assignedToUserId: null,
-    orgId: null,
-    tags: [],
-    ...input,
-  };
+  const rows = await sql<DbRow[]>`
+    INSERT INTO contact_messages (
+      id, source_page, first_name, last_name, email, phone, service_interest, message_body
+    ) VALUES (
+      ${id},
+      ${input.sourcePage},
+      ${input.firstName},
+      ${input.lastName},
+      ${input.email},
+      ${input.phone},
+      ${input.serviceInterest},
+      ${input.messageBody}
+    )
+    RETURNING *
+  `;
 
-  messages.unshift(record);
-  await writeMessages(messages);
-
-  return record;
+  return rowToMessage(rows[0]);
 }
 
 export async function listContactMessages(filters: ListFilters = {}): Promise<ContactMessage[]> {
-  const messages = await readMessages();
-  const query = filters.q?.trim().toLowerCase();
+  const sql = getDb();
 
-  return messages.filter((message) => {
-    if (filters.status && message.status !== filters.status) {
-      return false;
-    }
+  // SQL-level filters for indexed columns; JS-level filter for full-text search
+  const rows = await sql<DbRow[]>`
+    SELECT *
+    FROM contact_messages
+    WHERE true
+      ${filters.status ? sql`AND status = ${filters.status}` : sql``}
+      ${filters.assignedToUserId ? sql`AND assigned_to_user_id = ${filters.assignedToUserId}` : sql``}
+    ORDER BY created_at DESC
+  `;
 
-    if (filters.assignedToUserId && message.assignedToUserId !== filters.assignedToUserId) {
-      return false;
-    }
+  let messages = rows.map(rowToMessage);
 
-    if (!query) {
-      return true;
-    }
+  if (filters.q) {
+    const q = filters.q.trim().toLowerCase();
+    messages = messages.filter((m) => {
+      const haystack = [
+        m.firstName,
+        m.lastName,
+        m.email,
+        m.phone,
+        m.serviceInterest,
+        m.messageBody,
+        m.tags.join(' '),
+      ]
+        .join(' ')
+        .toLowerCase();
+      return haystack.includes(q);
+    });
+  }
 
-    const haystack = [
-      message.firstName,
-      message.lastName,
-      message.email,
-      message.phone,
-      message.serviceInterest,
-      message.messageBody,
-      message.tags.join(' '),
-    ]
-      .join(' ')
-      .toLowerCase();
-
-    return haystack.includes(query);
-  });
+  return messages;
 }
 
 export async function updateContactMessage(
   id: string,
   updates: Partial<Pick<ContactMessage, 'status' | 'assignedToUserId' | 'orgId' | 'tags'>>,
 ): Promise<ContactMessage | null> {
-  const messages = await readMessages();
-  const index = messages.findIndex((message) => message.id === id);
+  const sql = getDb();
 
-  if (index === -1) {
-    return null;
-  }
+  // Fetch current record so we can merge without clobbering unset fields
+  const existing = await sql<DbRow[]>`
+    SELECT * FROM contact_messages WHERE id = ${id}
+  `;
+  if (!existing.length) return null;
 
-  const current = messages[index];
+  const cur = rowToMessage(existing[0]);
 
-  messages[index] = {
-    ...current,
-    ...updates,
-    tags: updates.tags ?? current.tags,
-  };
+  const newStatus = updates.status ?? cur.status;
+  const newAssigned = updates.assignedToUserId !== undefined ? updates.assignedToUserId : cur.assignedToUserId;
+  const newOrgId = updates.orgId !== undefined ? updates.orgId : cur.orgId;
+  const newTags = updates.tags !== undefined ? updates.tags : cur.tags;
 
-  await writeMessages(messages);
-  return messages[index];
+  const rows = await sql<DbRow[]>`
+    UPDATE contact_messages
+    SET
+      status              = ${newStatus},
+      assigned_to_user_id = ${newAssigned},
+      org_id              = ${newOrgId},
+      tags                = ${sql.array(newTags)}
+    WHERE id = ${id}
+    RETURNING *
+  `;
+
+  return rows.length ? rowToMessage(rows[0]) : null;
 }
+
+// ── CSV export (stateless — operates on in-memory data) ───────────────────────
 
 export function toCsv(messages: ContactMessage[]): string {
   const escape = (value: string) => `"${value.replaceAll('"', '""')}"`;
@@ -148,23 +176,23 @@ export function toCsv(messages: ContactMessage[]): string {
     'messageBody',
   ];
 
-  const rows = messages.map((message) =>
+  const rows = messages.map((m) =>
     [
-      message.id,
-      message.createdAt,
-      message.sourcePage,
-      message.firstName,
-      message.lastName,
-      message.email,
-      message.phone,
-      message.serviceInterest,
-      message.status,
-      message.assignedToUserId ?? '',
-      message.orgId ?? '',
-      message.tags.join('|'),
-      message.messageBody,
+      m.id,
+      m.createdAt,
+      m.sourcePage,
+      m.firstName,
+      m.lastName,
+      m.email,
+      m.phone,
+      m.serviceInterest,
+      m.status,
+      m.assignedToUserId ?? '',
+      m.orgId ?? '',
+      m.tags.join('|'),
+      m.messageBody,
     ]
-      .map((field) => escape(field))
+      .map((field) => escape(String(field)))
       .join(','),
   );
 

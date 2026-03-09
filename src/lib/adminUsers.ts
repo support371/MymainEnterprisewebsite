@@ -1,6 +1,5 @@
 import crypto from 'node:crypto';
-import { promises as fs } from 'node:fs';
-import path from 'node:path';
+import { getDb } from './db/index';
 
 export type AdminRole = 'super_admin' | 'admin' | 'analyst' | 'auditor';
 
@@ -13,17 +12,7 @@ export interface AdminUser {
   active: boolean;
 }
 
-interface LegacyAdminUser {
-  id: string;
-  email: string;
-  password?: string;
-  passwordHash?: string;
-  name: string;
-  role: AdminRole;
-  active: boolean;
-}
-
-const usersPath = path.join(process.cwd(), 'data', 'admin-users.json');
+// ── Password utilities ────────────────────────────────────────────────────────
 
 function hashPassword(password: string): string {
   const salt = crypto.randomBytes(16).toString('hex');
@@ -33,113 +22,113 @@ function hashPassword(password: string): string {
 
 function verifyPassword(password: string, passwordHash: string): boolean {
   const [salt, storedHash] = passwordHash.split(':');
-
-  if (!salt || !storedHash) {
-    return false;
-  }
-
+  if (!salt || !storedHash) return false;
   const computedHash = crypto.scryptSync(password, salt, 64).toString('hex');
   return crypto.timingSafeEqual(Buffer.from(storedHash, 'hex'), Buffer.from(computedHash, 'hex'));
 }
 
-function defaultUsers(): AdminUser[] {
-  return [
-    {
-      id: 'U-1',
-      email: 'superadmin@gem.local',
-      passwordHash: hashPassword(process.env.SUPER_ADMIN_PASSWORD || 'change-me-superadmin'),
-      name: 'Super Admin',
-      role: 'super_admin',
-      active: true,
-    },
-    {
-      id: 'U-2',
-      email: 'admin@gem.local',
-      passwordHash: hashPassword(process.env.ADMIN_PASSWORD || 'change-me-admin'),
-      name: 'Platform Admin',
-      role: 'admin',
-      active: true,
-    },
-    {
-      id: 'U-3',
-      email: 'analyst@gem.local',
-      passwordHash: hashPassword(process.env.ANALYST_PASSWORD || 'change-me-analyst'),
-      name: 'SOC Analyst',
-      role: 'analyst',
-      active: true,
-    },
-  ];
-}
+// ── DB row mapping ────────────────────────────────────────────────────────────
 
-function normalizeUser(user: LegacyAdminUser): AdminUser {
-  if (user.passwordHash) {
-    return {
-      id: user.id,
-      email: user.email,
-      passwordHash: user.passwordHash,
-      name: user.name,
-      role: user.role,
-      active: user.active,
-    };
-  }
+type DbRow = {
+  id: string;
+  email: string;
+  password_hash: string;
+  name: string;
+  role: AdminRole;
+  active: boolean;
+};
 
+function rowToUser(row: DbRow): AdminUser {
   return {
-    id: user.id,
-    email: user.email,
-    passwordHash: hashPassword(user.password || 'change-me-password'),
-    name: user.name,
-    role: user.role,
-    active: user.active,
+    id: row.id,
+    email: row.email,
+    passwordHash: row.password_hash,
+    name: row.name,
+    role: row.role,
+    active: row.active,
   };
 }
 
-async function ensureStore(): Promise<void> {
-  await fs.mkdir(path.dirname(usersPath), { recursive: true });
-
-  try {
-    await fs.access(usersPath);
-  } catch {
-    await fs.writeFile(usersPath, JSON.stringify(defaultUsers(), null, 2), 'utf8');
-  }
-}
+// ── Public API ────────────────────────────────────────────────────────────────
 
 export async function listAdminUsers(): Promise<AdminUser[]> {
-  await ensureStore();
-  const raw = await fs.readFile(usersPath, 'utf8');
-
-  try {
-    const parsed = JSON.parse(raw) as LegacyAdminUser[];
-
-    if (!Array.isArray(parsed)) {
-      return [];
-    }
-
-    const normalized = parsed.map(normalizeUser);
-
-    const needsMigration = normalized.some((user, index) => {
-      const legacy = parsed[index];
-      return !legacy.passwordHash || Boolean(legacy.password);
-    });
-
-    if (needsMigration) {
-      await fs.writeFile(usersPath, JSON.stringify(normalized, null, 2), 'utf8');
-    }
-
-    return normalized;
-  } catch {
-    return [];
-  }
+  const sql = getDb();
+  const rows = await sql<DbRow[]>`
+    SELECT id, email, password_hash, name, role, active
+    FROM admin_users
+    ORDER BY id
+  `;
+  return rows.map(rowToUser);
 }
 
 export async function authenticateUser(email: string, password: string): Promise<AdminUser | null> {
-  const users = await listAdminUsers();
-  const normalized = email.trim().toLowerCase();
+  const sql = getDb();
+  const rows = await sql<DbRow[]>`
+    SELECT id, email, password_hash, name, role, active
+    FROM admin_users
+    WHERE lower(email) = lower(${email.trim()})
+      AND active = true
+    LIMIT 1
+  `;
+  if (!rows.length) return null;
+  const user = rowToUser(rows[0]);
+  return verifyPassword(password, user.passwordHash) ? user : null;
+}
 
-  const user = users.find((candidate) => candidate.email.toLowerCase() === normalized && candidate.active);
+export async function createAdminUser(input: {
+  email: string;
+  password: string;
+  name: string;
+  role: AdminRole;
+}): Promise<AdminUser> {
+  const sql = getDb();
+  const rows = await sql<DbRow[]>`
+    INSERT INTO admin_users (id, email, password_hash, name, role)
+    VALUES (
+      ${'U-' + Date.now()},
+      ${input.email.trim().toLowerCase()},
+      ${hashPassword(input.password)},
+      ${input.name},
+      ${input.role}
+    )
+    RETURNING id, email, password_hash, name, role, active
+  `;
+  return rowToUser(rows[0]);
+}
 
-  if (!user || !verifyPassword(password, user.passwordHash)) {
-    return null;
-  }
+export async function updateAdminUser(
+  id: string,
+  updates: Partial<Pick<AdminUser, 'name' | 'role' | 'active'>>,
+): Promise<AdminUser | null> {
+  const sql = getDb();
 
-  return user;
+  // Fetch current state, then write merged record — keeps UPDATE simple and type-safe
+  const current = await sql<DbRow[]>`
+    SELECT id, email, password_hash, name, role, active
+    FROM admin_users WHERE id = ${id}
+  `;
+  if (!current.length) return null;
+
+  const cur = rowToUser(current[0]);
+  const rows = await sql<DbRow[]>`
+    UPDATE admin_users
+    SET
+      name       = ${updates.name       ?? cur.name},
+      role       = ${updates.role       ?? cur.role},
+      active     = ${updates.active     ?? cur.active},
+      updated_at = now()
+    WHERE id = ${id}
+    RETURNING id, email, password_hash, name, role, active
+  `;
+  return rows.length ? rowToUser(rows[0]) : null;
+}
+
+export async function changeAdminPassword(id: string, newPassword: string): Promise<boolean> {
+  const sql = getDb();
+  const result = await sql`
+    UPDATE admin_users
+    SET password_hash = ${hashPassword(newPassword)}, updated_at = now()
+    WHERE id = ${id}
+  `;
+  return result.count > 0;
 }

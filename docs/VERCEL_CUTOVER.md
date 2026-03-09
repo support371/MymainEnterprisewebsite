@@ -13,34 +13,49 @@
 - [ ] Lint passes: `npm run lint`
 - [ ] `.env.example` is committed; no `.env*` secrets are in git history
 
-### 2. Set Vercel environment variables
+### 2. Provision a PostgreSQL database
+
+The app requires a PostgreSQL database. File-based JSON storage has been fully removed.
+All providers below are compatible with the `postgres` npm client used by this app:
+
+| Provider | How to obtain `DATABASE_URL` |
+|---|---|
+| **Vercel Postgres** (recommended) | Vercel dashboard → Storage → Create Database |
+| Neon | neon.tech → new project → copy connection string |
+| Supabase | Project Settings → Database → URI mode |
+| Railway | Add Postgres service → copy `DATABASE_URL` variable |
+
+### 3. Set Vercel environment variables
 
 In the Vercel dashboard → Project → Settings → Environment Variables, add every key from `.env.example`.
-Critical secrets to set **before first deployment**:
 
 | Variable | Required | Notes |
 |---|---|---|
-| `ADMIN_AUTH_SECRET` | **YES** | Long random string; rotate if ever exposed |
+| `DATABASE_URL` | **YES** | PostgreSQL connection string — see step 2 |
+| `ADMIN_AUTH_SECRET` | **YES** | 48+ random hex chars; rotate if ever exposed |
 | `SUPER_ADMIN_PASSWORD` | **YES** | Seed password for `superadmin@gem.local` |
 | `ADMIN_PASSWORD` | **YES** | Seed password for `admin@gem.local` |
-| `ANALYST_PASSWORD` | YES | Seed password for `analyst@gem.local` |
-| `SMTP_HOST` / `SMTP_PORT` / `SMTP_USER` / `SMTP_PASS` | Recommended | Without these, contact-form emails are skipped (submissions still saved) |
+| `ANALYST_PASSWORD` | **YES** | Seed password for `analyst@gem.local` |
+| `SMTP_HOST/PORT/USER/PASS` | Recommended | Without these, contact emails are skipped (DB submissions still saved) |
 | `NEXT_PUBLIC_APP_NAME` | Optional | Defaults to `GEM CYBER` |
 | `NEXT_PUBLIC_SUPPORT_EMAIL` | Optional | Defaults to `admin@gemcybersecurityassist.com` |
 | `NEXT_PUBLIC_SUPPORT_PHONE` | Optional | Defaults to `(860) 305-4376` |
 
-### 3. Writable runtime data
+### 4. Run database migration
 
-The app uses file-based JSON for admin users and contact messages at:
-- `data/admin-users.json`
-- `data/contact-messages.json`
+Before traffic hits the app, create tables and seed default admin users:
 
-**Vercel's filesystem is read-only at runtime.** On first cold start the app will attempt to write these files and fail silently on Vercel's ephemeral filesystem. Two options:
+```bash
+# Locally (with DATABASE_URL in .env.local)
+npm run db:migrate
 
-- **Option A (recommended):** Replace the file-based store with a Vercel KV / Postgres / PlanetScale database and update `src/lib/adminUsers.ts` and `src/lib/contactMessages.ts` accordingly.
-- **Option B (quick unblock):** Use Vercel Blob or an external store (e.g. Upstash Redis) to persist JSON. Wire reads/writes through the SDK.
+# Or inject into Vercel build command:
+# npm run db:migrate && next build
+```
 
-### 4. Deploy
+The migration is idempotent — safe to re-run at any time.
+
+### 5. Deploy
 
 ```bash
 # Option 1 — Vercel CLI (once token is available)
@@ -50,54 +65,59 @@ vercel --prod --token $VERCEL_TOKEN
 # Merge/promote the branch to main; Vercel auto-deploys on push to main.
 ```
 
-### 5. Post-deployment smoke tests
-
-Run against the live URL:
+### 6. Post-deployment smoke tests
 
 ```bash
 PROD=https://your-domain.com
 
-# Health check
+# Health check — confirms DB connectivity
 curl -sf $PROD/api/health | jq .
+# Expect: { "ok": true, "database": { "status": "ok" } }
 
 # Route registry
-curl -sf $PROD/api/routes | jq '.routes | length'
+curl -sf $PROD/api/routes | jq '.totals'
 
 # Contact API schema
 curl -sf $PROD/api/contact | jq .
 
-# Redirect integrity (expect 301/307, not 404)
-curl -sI $PROD/contact       | grep -i location
-curl -sI $PROD/privacy        | grep -i location
-curl -sI $PROD/intelligence   | grep -i location
-curl -sI $PROD/membership     | grep -i location
+# Redirect integrity (expect 301/307, not 200/404)
+curl -sI $PROD/contact       | grep -i location   # → /contact-us
+curl -sI $PROD/privacy        | grep -i location   # → /legal/privacy-policy
+curl -sI $PROD/intelligence   | grep -i location   # → /intel
+curl -sI $PROD/membership     | grep -i location   # → /community
 ```
 
-### 6. Admin access
+### 7. Admin access — rotate seeded accounts
 
 1. Navigate to `https://your-domain.com/admin/login`
-2. Log in with the seeded account matching your `SUPER_ADMIN_PASSWORD` env var
-3. Immediately create a production admin user with a strong password via `/admin/users`
-4. Rotate / remove the seeded default accounts
+2. Log in with `superadmin@gem.local` and your `SUPER_ADMIN_PASSWORD`
+3. Create a production admin user with a strong password via `/admin/users`
+4. Deactivate or delete all three seeded accounts (`@gem.local`)
 
-### 7. DNS cutover (if applicable)
+### 8. DNS cutover (if applicable)
 
 - Point your domain's A / CNAME to Vercel's IP / alias
 - Enable Vercel's automatic TLS
-- Verify `www` → apex redirect is handled (or configure in Vercel project settings)
+- Verify `www` → apex redirect is handled in Vercel project settings
 
 ---
 
 ## What was hardened in this branch
 
-| Area | Change |
-|---|---|
-| Lint | Fixed 2 unescaped-entity errors and 1 unused-import warning |
-| Route accuracy | Corrected `/api/contact` method label in live-preview from `GET` → `POST` |
-| Git hygiene | `data/admin-users.json` and `data/contact-messages.json` removed from git tracking and added to `.gitignore` |
-| Secrets documentation | `.env.example` created with all required and optional variables |
-| Deployment docs | This file |
+| Session | Area | Change |
+|---|---|---|
+| 1 | Lint | Fixed 2 unescaped-entity errors, 1 unused-import warning |
+| 1 | Route accuracy | Corrected `/api/contact` method label in live-preview (`GET` → `POST`) |
+| 1 | Git hygiene | Removed `data/` files from tracking; added to `.gitignore` |
+| 1 | Env docs | Created `.env.example` with all variables |
+| 2 | Database layer | Created `src/lib/db/` — connection singleton, error types, migration script |
+| 2 | Storage | Replaced file-based JSON with PostgreSQL in `adminUsers.ts` and `contactMessages.ts` |
+| 2 | API hardening | 503 responses when DB not configured; structured logs on all routes |
+| 2 | Health endpoint | DB connectivity probe + SMTP/secret posture flags |
+| 2 | Env helpers | `isDatabaseConfigured()`, `assertProductionEnv()` in `env.ts` |
+| 2 | npm scripts | Added `db:migrate` |
 
 ---
 
-*Vercel actions (deploy, domain, env-var set) blocked pending token/dashboard access.*
+*Vercel actions (deploy, domain, env-var set) are blocked until token/dashboard access is available.*
+*See `docs/DEPLOY_READINESS.md` for the full readiness checklist.*
