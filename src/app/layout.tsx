@@ -6,6 +6,7 @@ import BottomTabBar from "@/components/layout/BottomTabBar";
 import Footer from "@/components/layout/Footer";
 import LiveSupport from "@/components/layout/LiveSupport";
 import ExtensionErrorGuard from "@/components/layout/ExtensionErrorGuard";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 export const metadata: Metadata = {
   title: {
@@ -39,6 +40,7 @@ export default function RootLayout({
         <Footer />
         <LiveSupport />
         <Suspense fallback={null}><BottomTabBar /></Suspense>
+        <SpeedInsights />
       </body>
     </html>
   );
