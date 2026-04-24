@@ -51,8 +51,20 @@ export default function TopNav() {
         })}
       </nav>
 
-      {/* Right side: CTA + Admin */}
+      {/* Right side: platform bridge + existing actions */}
       <div className="flex items-center gap-3 flex-shrink-0">
+        <Link
+          href="/client-login"
+          className="text-xs font-medium text-slate-400 hover:text-slate-200 transition"
+        >
+          Client Login
+        </Link>
+        <Link
+          href="/get-started"
+          className="rounded-lg border border-cyan-500/50 px-4 py-2 text-sm font-semibold text-cyan-100 hover:bg-cyan-500/10 transition"
+        >
+          Full Service Registration
+        </Link>
         <Link
           href="/admin"
           className={[
